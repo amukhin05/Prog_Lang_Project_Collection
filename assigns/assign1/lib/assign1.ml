@@ -12,7 +12,7 @@ let num_factors (n : int) : int =
     else if i = 0 then false
     else if i < 0 && n <> (-1) then false
     else if n = 0 && i > 0 then true
-    else if i < (-1) && n = (-1) then
+    else if i < 0 && n = (-1) then
       if i mod 2 = 0 then false
       else true
     else if n < 0 then 
@@ -24,16 +24,16 @@ let num_factors (n : int) : int =
               if exp = 0 then 1
               else int_base * int_pow int_base (exp - 1)
           in int_pow base i = n then true
-          else if base = n then false
+          else if base < n then false
           else back (base-1)
         in back (-2)
     else
-      let rec front base = 
+      let rec front base : bool = 
         if let rec int_pow int_base exp : int =
           if exp = 0 then 1
           else int_base * int_pow int_base (exp - 1)
         in int_pow base i = n then true
-        else if base = n then false
+        else if base > n then false
         else front (base+1)
       in front 2
 
