@@ -6,11 +6,15 @@ let num_factors (n : int) : int =
   in count n 2 0
 
   let perfect_power (i : int) (n : int) : bool = 
-    if n = 0 && i = 0 then false
-    else if n = 0 then true
-    else if n = 1 then true
-    else if i < 0 then false
+    if n = 1 then true
     else if i = 1 then true
+    else if i = (-1) && n = (-1) then true
+    else if i = 0 then false
+    else if i < 0 && n <> (-1) then false
+    else if n = 0 && i > 0 then true
+    else if i < (-1) && n = (-1) then
+      if i mod 2 = 0 then false
+      else true
     else if n < 0 then 
       if i mod 2 = 0 then false
       else if n = -1 then true
