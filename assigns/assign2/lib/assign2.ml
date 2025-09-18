@@ -1,18 +1,42 @@
+let drop_leading (n : int) (l : int list) : int list =
+  let rec drop list =
+    match list with
+    | x :: rest when x = n -> drop rest
+    | _ -> list
+  in drop l
 
-let drop_leading (_n : int) (_l : int list) : int list =
-  assert false
+let drop_trailing (n : int) (l : int list) : int list =
+  l |> List.rev |> drop_leading n |> List.rev
 
-let drop_trailing (_n : int) (_l : int list) : int list =
-  assert false
+let split_on_char (c : char) (s : string) : string list =
+  let rec iter (res : string list)  (pos : int) (prev : int) = 
+    if pos = String.length s then
+      List.rev (String.sub s prev (pos - prev) :: res)
+    else if String.get s pos = c then
+      iter (String.sub s prev (pos - prev) :: res) (pos + 1) (pos + 1)
+    else iter res (pos + 1) prev
+  in iter [] 0 0
 
-let split_on_char (_c : char) (_s : string) : string list =
-  assert false
 
-let parse_fractran (_input : string) : Q.t list =
-  assert false
+let parse_fractran (input : string) : Q.t list =
+  let parts = split_on_char ' ' input in
+  let rec builder list = 
+    match list with
+    | first :: rest ->
+      let split_frac = split_on_char '/' first in 
+      Q.make (Z.of_string (List.nth split_frac 0)) (Z.of_string (List.nth split_frac 1)) :: builder rest
+    | [] -> []
+    in builder parts
 
-let eval_fractran (_program : Q.t list) (_input : Z.t) : Z.t =
-  assert false
+let eval_fractran (program : Q.t list) (input : Z.t) : Z.t =
+  let rec iter program n = 
+    match program with
+    | first :: rest -> 
+      let r = Q.mul (Q.make n Z.one) first in
+      if Q.den r = Z.one then iter program (Q.num r)
+      else iter rest n
+    | [] -> n
+  in iter program input
 
 let interp_fractran (input : string) : Z.t -> Z.t =
   eval_fractran (parse_fractran input)
