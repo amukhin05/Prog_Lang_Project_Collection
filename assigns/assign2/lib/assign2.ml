@@ -31,12 +31,12 @@ let parse_fractran (input : string) : Q.t list =
     in builder parts
 
 let eval_fractran (program : Q.t list) (input : Z.t) : Z.t =
-  let rec iter program n = 
-    match program with
-    | first :: rest -> 
-      let r = Q.mul (Q.make n Z.one) first in
-      if Q.den r = Z.one then iter program (Q.num r)
-      else iter rest n
+  let rec iter scan_list n =
+    match scan_list with
+    | first :: rest ->
+        let r = Q.mul (Q.make n Z.one) first in
+        if Q.den r = Z.one then iter program (Q.num r)
+        else iter rest n
     | [] -> n
   in iter program input
 
