@@ -23,8 +23,10 @@ let parse_fractran (input : string) : Q.t list =
   let rec builder list = 
     match list with
     | first :: rest ->
-      let split_frac = split_on_char '/' first in 
-      Q.make (Z.of_string (List.nth split_frac 0)) (Z.of_string (List.nth split_frac 1)) :: builder rest
+      if first = "" then builder rest
+      else 
+        let split_frac = split_on_char '/' first in 
+        Q.make (Z.of_string (List.nth split_frac 0)) (Z.of_string (List.nth split_frac 1)) :: builder rest
     | [] -> []
     in builder parts
 
