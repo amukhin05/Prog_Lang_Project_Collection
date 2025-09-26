@@ -1,7 +1,9 @@
+(* 
 let rec rev_append (l : 'a list) (r : 'a list) : 'a list =
   match l with
   | [] -> r
   | x :: xs -> rev_append xs (x :: r)
+*)
 
 let is_whitespace c = List.mem c [' '; '\n'; '\t'; '\r']
 
