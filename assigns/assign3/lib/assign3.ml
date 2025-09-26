@@ -1,4 +1,3 @@
-
 let rec rev_append (l : 'a list) (r : 'a list) : 'a list =
   match l with
   | [] -> r
@@ -28,19 +27,68 @@ let sep_on_whitespace (s : string) : string list =
 
 type registers = (int * int) list
 
-let load (_l : int list) : registers = assert false
+let load (l : int list) : registers = 
+  let rec iter (arr : int list) (reg : registers) (idx : int) = 
+    match arr with
+    | [] -> List.rev reg
+    | curr :: rest -> 
+      if curr <> 0 then iter rest ((idx, curr) :: reg) (idx + 1) 
+      else iter rest reg (idx + 1)
+  in iter l [] 0 
 
-let lookup (_rs : registers) (_i : int) : int = assert false
+let lookup (rs : registers) (i : int) : int = 
+  let rec iter regs = 
+    match regs with
+    | [] -> 0
+    | (r, v) :: rest ->
+      if r = i then v
+      else iter rest
+  in iter rs
 
-let incr (_rs : registers) (_i : int) : registers = assert false
+let update (rs : registers) (i : int) (amt: int) = 
+  let rec iter regs = 
+    match regs with
+    | [] -> if amt = 0 then [] else [(i,amt)]
+    | (k, v) :: rest -> 
+        if k = i then 
+          if amt = 0 then rest else (k, amt) :: rest
+        else if k > i then 
+          if amt = 0 then (k,v) :: rest else (i, amt) :: (k,v) :: rest
+        else (k,v) :: iter rest
+    in iter rs
 
-let zero (_rs : registers) (_i : int) : registers = assert false
+let incr (rs : registers) (i : int) : registers = 
+  update rs i ((lookup rs i) + 1)
 
-let transfer (_rs : registers) (_i : int) (_j : int) : registers = assert false
+let zero (rs : registers) (i : int) : registers = 
+  update rs i 0
 
-let parse_urm (_tokens : string list) : int list list = assert false
+let transfer (rs : registers) (i : int) (j : int) : registers = 
+  update rs j (lookup rs i)
 
-let eval_urm (_prog : int list list) (_rs : registers) : registers = assert false
+let parse_urm (tokens : string list) : int list list =
+  let rec iter acc toks =
+    match toks with
+    | [] -> List.rev acc
+    | "Z" :: i :: rest -> iter ([0; int_of_string i] :: acc) rest
+    | "I" :: i :: rest -> iter ([1; int_of_string i] :: acc) rest
+    | "T" :: i :: j :: rest -> iter ([2; int_of_string i; int_of_string j] :: acc) rest
+    | "J" :: i :: j :: k :: rest -> iter ([3; int_of_string i; int_of_string j; int_of_string k] :: acc) rest
+    | _ -> []
+  in iter [] tokens
+
+let eval_urm (prog : int list list) (rs : registers) : registers =
+  let rec iter regs pc =
+    if pc >= (List.length prog) then regs
+    else match (List.nth prog pc) with
+    | [0; i] -> iter (zero regs i) (pc + 1)
+    | [1; i] -> iter (incr regs i) (pc + 1)
+    | [2; i; j] -> iter (transfer regs i j) (pc + 1)
+    | [3; i; j; k] ->
+        if lookup regs i = lookup regs j then iter regs k
+        else iter regs (pc + 1)
+    | _ -> []
+  in iter rs 0
 
 let interp_urm (prog : string) (args : int list) : int =
   prog
