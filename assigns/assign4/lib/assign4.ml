@@ -78,12 +78,12 @@ let rec expr_of_sexpr (sexpr : sexpr) : expr option =
                 with Failure _ -> None)
         | List (Atom oper :: first :: second :: rest) ->
             (match expr_of_sexpr first, expr_of_sexpr second with
-            | (Some e1, Some e2) -> 
+            | (Some exp1, Some exp2) -> 
                 (match oper with
-                | "+" -> iter rest (Add (e1, e2) :: res)
-                | "-" -> iter rest (Sub (e1, e2) :: res)
-                | "*" -> iter rest (Mul (e1, e2) :: res)
-                | "/" -> iter rest (Div (e1, e2) :: res)
+                | "+" -> iter rest (Add (exp1, exp2) :: res)
+                | "-" -> iter rest (Sub (exp1, exp2) :: res)
+                | "*" -> iter rest (Mul (exp1, exp2) :: res)
+                | "/" -> iter rest (Div (exp1, exp2) :: res)
                 | _ -> None)
             | _ -> None)
         | _ -> None
@@ -106,10 +106,9 @@ let rec eval (e : expr) : int =
 
 let interp (s : string) : int option =
   match sexpr_of_tokens (tokens_of_string s) with
-  | Some (sexp, []) -> (
-      match expr_of_sexpr sexp with
+  | Some (sexp, []) -> 
+      (match expr_of_sexpr sexp with
       | Some e -> Some (eval e)
-      | None -> None
-    )
+      | None -> None)
   | _ -> None
       
