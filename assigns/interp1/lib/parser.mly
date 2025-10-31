@@ -2,7 +2,6 @@
 open Utils
 %}
 
-%token EOF
 %token IF
 %token THEN
 %token ELSE
@@ -31,30 +30,35 @@ open Utils
 %token RBRACE
 %token<int> INT 
 %token<string> IDENT
+%token EOF
 
 %start <Utils.prog> prog
 
 %right OR
 %right AND
-%left LT, LTE, GT, GTE, EQ, NEQ
-%left PLUS, MINUS
-%left MUL, DIV, MOD
+%left LT LTE GT GTE EQ NEQ
+%left PLUS MINUS
+%left MUL DIV MOD
 
 %%
 
 prog:
   | e = expr { e }
   | EOF { Unit }
+;
 
 expr:
   | IF e1 = expr THEN e2 = expr ELSE e3 = expr { If(e1, e2, e3) }
   | LET v = var EQ e1 = expr IN e2 = expr { Let(v, e1, e2) }
   | FUN v = var APP e = expr { Fun(v, e) }
   | e = expr2 { e }
+;
 
 expr2:
   | e1 = expr2 b = bop e2 = expr2 { Bop(b, e1, e2) }
   | e1 = expr3 LBRACE e2 = expr3 RBRACE { App(e1, e2) }
+  | e = expr3 { e }
+;
 
 expr3:
   | LPAREN RPAREN { Unit }
@@ -63,6 +67,7 @@ expr3:
   | n = INT { Num n }
   | v = IDENT { Var v }
   | LPAREN e = expr RPAREN { e }
+;
 
 %inline bop:
   | PLUS { Add }
@@ -78,12 +83,15 @@ expr3:
   | AND { And }
   | OR { Or }
   | NEQ { Neq }
+;
 
 var: 
   | x = IDENT { x }
+;
 
 int:
   | n = INT { n }
+;
 
 
 
