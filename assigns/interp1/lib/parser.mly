@@ -43,7 +43,7 @@ open Utils
 %%
 
 prog:
-  | e = expr { e }
+  | e = expr EOF { e }
   | EOF { Unit }
 ;
 
