@@ -63,7 +63,7 @@ expr3:
   | TRUE { True }
   | FALSE { False }
   | n = INT { Num n }
-  | v = IDENT { Var x }
+  | v = IDENT { Var v }
   | LPAREN; e = expr; RPAREN { e }
 
 %inline bop:
