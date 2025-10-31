@@ -11,8 +11,6 @@ open Utils
 %token IN
 %token FUN 
 %token APP
-%token LMAP
-%token RMAP
 %token LPAREN
 %token RPAREN
 %token TRUE
@@ -49,22 +47,22 @@ prog:
   | EOF { Unit }
 
 expr:
-  | IF; e1 = expr; THEN; e2 = expr; ELSE; e3 = expr { If(e1, e2, e3) }
-  | LET; v = var; EQ; e1 = expr; IN; e2 = expr { Let(v, e1, e2) }
-  | FUN; v = var; APP; e = expr { Fun(v, e) }
+  | IF e1 = expr THEN e2 = expr ELSE e3 = expr { If(e1, e2, e3) }
+  | LET v = var EQ e1 = expr IN e2 = expr { Let(v, e1, e2) }
+  | FUN v = var APP e = expr { Fun(v, e) }
   | e = expr2 { e }
 
 expr2:
-  | e1 = expr2; b = bop; e2 = expr2 { Bop(b, e1, e2) }
-  | e1 = expr3; LBRACE; e2 = expr3; RBRACE { App(e1, e2) }
+  | e1 = expr2 b = bop e2 = expr2 { Bop(b, e1, e2) }
+  | e1 = expr3 LBRACE e2 = expr3 RBRACE { App(e1, e2) }
 
 expr3:
-  | LPAREN; RPAREN { Unit }
+  | LPAREN RPAREN { Unit }
   | TRUE { True }
   | FALSE { False }
   | n = INT { Num n }
   | v = IDENT { Var v }
-  | LPAREN; e = expr; RPAREN { e }
+  | LPAREN e = expr RPAREN { e }
 
 %inline bop:
   | PLUS { Add }

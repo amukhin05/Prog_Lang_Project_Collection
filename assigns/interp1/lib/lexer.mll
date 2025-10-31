@@ -30,6 +30,8 @@ rule read =
   | ">" { GT }
   | "(" { LPAREN }
   | ")" { RPAREN }
+  | "{" { LBRACE }
+  | "}" { RBRACE }
   | "&&" { AND }
   | "||" { OR }
   | var { IDENT (Lexing.lexeme lexbuf) }
