@@ -56,9 +56,12 @@ expr:
 
 expr2:
   | e1 = expr2 b = bop e2 = expr2 { Bop(b, e1, e2) }
-  | e1 = expr3 LBRACE e2 = expr3 RBRACE { App(e1, e2) }
-  | e = expr3 { e }
+  | e1 = expr3 e2 = expr2ext { App(e1, e2) }
 ;
+
+expr2ext:
+  | e1 = expr3 e2 = expr2ext { App(e1, e2) }
+  | { Unit }
 
 expr3:
   | LPAREN RPAREN { Unit }
