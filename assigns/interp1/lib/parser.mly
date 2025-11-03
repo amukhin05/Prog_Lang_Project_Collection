@@ -34,7 +34,7 @@ open Utils
 
 %right OR
 %right AND
-%nonassoc LT LTE GT GTE EQ NEQ
+%left LT LTE GT GTE EQ NEQ
 %left PLUS MINUS
 %left MUL DIV MOD
 
