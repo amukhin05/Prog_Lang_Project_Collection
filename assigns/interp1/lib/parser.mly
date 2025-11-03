@@ -26,8 +26,6 @@ open Utils
 %token AND
 %token OR
 %token NEQ
-%token LBRACE
-%token RBRACE
 %token<int> INT 
 %token<string> IDENT
 %token EOF
@@ -56,8 +54,12 @@ expr:
 
 expr2:
   | e1 = expr2 b = bop e2 = expr2 { Bop(b, e1, e2) }
-  | e1 = expr3 LBRACE e2 = expr3 RBRACE { App(e1, e2) }
-  | e = expr3 { e }
+  | e1 = expr3 e2 = expr3_list { List.fold_left (fun acc x -> App (acc, x)) e1 e2 }
+;
+
+expr3_list:
+  | e1 = expr3 e2 = expr3_list { e1 :: e2 }
+  | { [] } 
 ;
 
 expr3:
