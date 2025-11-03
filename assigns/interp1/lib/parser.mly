@@ -69,7 +69,6 @@ expr3:
   | n = INT { Num n }
   | v = IDENT { Var v }
   | LPAREN e = expr RPAREN { e }
-  | { Unit }
 ;
 
 %inline bop:
