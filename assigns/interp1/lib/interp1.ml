@@ -5,26 +5,26 @@ let parse (s : string) : expr option =
   | e -> Some e
   | exception _ -> None
 
-let subst (v : value) (x : string) (e : expr) : expr =
+let subst (v : value) (s : string) (exp : expr) : expr =
   let val_as_expr = function
     | VNum n -> Num n
     | VBool true -> True
     | VBool false -> False
     | VUnit -> Unit
-    | VFun (y, e0) -> Fun (y, e0)
+    | VFun (x, e) -> Fun (x, e)
   in
   let rec iter = function
     | Unit -> Unit 
     | True -> True
     | False -> False
     | Num n -> Num n
-    | Var y -> if y = x then val_as_expr v else Var y
+    | Var x -> if x = s then val_as_expr v else Var x
     | App (e1, e2) -> App (iter e1, iter e2)
-    | Bop (b, e1, e2) -> Bop (b, iter e1, iter e2)
+    | Bop (bop, e1, e2) -> Bop (bop, iter e1, iter e2)
     | If (e1, e2, e3) -> If (iter e1, iter e2, iter e3)
-    | Let (y, e1, e2) -> Let (y, iter e1, if y = x then e2 else iter e2)
-    | Fun (y, body) -> if y = x then Fun (y, body) else Fun (y, iter body)
-  in iter e
+    | Let (x, e1, e2) -> Let (x, iter e1, if x = s then e2 else iter e2)
+    | Fun (x, e) -> if x = s then Fun (x, e) else Fun (x, iter e)
+  in iter exp
 
 let eval (e : expr) : (value, error) result =
   (* let* really helped - credit to the piazza post on this *)
