@@ -1,4 +1,4 @@
-open Utils
+include Utils
 
 let parse (s : string) : expr option =
   match Parser.prog Lexer.read (Lexing.from_string s) with
