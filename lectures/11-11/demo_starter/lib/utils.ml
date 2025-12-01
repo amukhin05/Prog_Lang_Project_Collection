@@ -1,4 +1,5 @@
 type expr =
+  | Unit
   | Var of string
   | Num of int
   | Fun of string * expr
@@ -9,17 +10,21 @@ type expr =
   | Let of string * expr * expr
   | LetRec of string * string * expr * expr
 
-type prog = expr
+type top_let =
+  | Let of string * expr
+  | LetRec of string * string * expr
+
+type prog = top_let list
 
 module Env = Map.Make(String)
 
 type value =
   | VBool of bool
   | VNum of int
-  | VFun of string * expr
+  | VClos of string option * env * string * expr
 
 (* Bindings from strings to values *)
-type env = value Env.t
+and env = value Env.t
 
 (* empty environment *)
 let empty : env = Env.empty
