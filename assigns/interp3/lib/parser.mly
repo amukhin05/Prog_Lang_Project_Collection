@@ -114,6 +114,16 @@ annot:
 
 ty:
   | TUNIT { TUnit }
+  | TINT { TInt }
+  | TFLOAT { TFloat }
+  | TBOOL { TBool }
+  | t=ty; TLIST { TList t }
+  | t=ty; TOPTION { TOption t }
+  | a=TVAR { TVar a }
+  | t1=ty; STAR; t2=ty { TPair (t1, t2) }
+  | t1=ty; ARROW; t2=ty { TFun (t1, t2) }
+  | LPAREN; t=ty; RPAREN { t }
+
 
 arg:
   | x=VAR { (x, None) }
@@ -130,6 +140,33 @@ expr:
 	}
     }
   | FUN; args=arg*; ARROW; body=expr { mk_func None args body }
+  | IF; c=expr; THEN; t=expr; ELSE; e=expr { If (c, t, e) }
+  | MATCH; e=expr; WITH; ALT; x=VAR; COMMA; y=VAR; ARROW; body=expr
+    { PairMatch
+        { matched = e
+        ; fst_name = x
+        ; snd_name = y
+        ; case = body
+        }
+    }
+  | MATCH; e=expr; WITH; ALT; SOME; x=VAR; ARROW; sbody=expr; ALT; NONE; ARROW; nbody=expr
+    { OptMatch
+        { matched = e
+        ; some_name = x
+        ; some_case = sbody
+        ; none_case = nbody
+        }
+    }
+  | MATCH; e=expr; WITH; ALT; x=VAR; CONS; xs=VAR; ARROW; cbody=expr; ALT; LBRACKET; 
+    RBRACKET; ARROW; nbody=expr
+    { ListMatch
+        { matched = e
+        ; hd_name = x
+        ; tl_name = xs
+        ; cons_case = cbody
+        ; nil_case = nbody
+        }
+    }
   | e = expr2 { e }
 
 %inline bop:
@@ -179,3 +216,8 @@ expr3:
   | n=INT { Int n }
   | n=FLOAT { Float n }
   | x=VAR { Var x }
+  | LPAREN; e=expr; ty=annot?; RPAREN
+    { match ty with
+      | None -> e
+      | Some t -> Annot (e, t)
+    }
