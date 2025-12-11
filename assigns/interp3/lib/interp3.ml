@@ -226,6 +226,14 @@ exception AssertFail
 exception DivByZero
 exception CompareFunVals
 
+let rec has_fun (v : value) : bool =
+  match v with
+  | VClos _ -> true
+  | VList vs -> List.exists has_fun vs
+  | VPair (v1, v2) -> has_fun v1 || has_fun v2
+  | VSome v1 -> has_fun v1
+  | VUnit | VBool _ | VInt _ | VFloat _ | VNone -> false
+
 let rec eval_expr (env : dyn_env) (e : expr) : value =
   match e with
   | Unit -> VUnit
@@ -283,93 +291,87 @@ let rec eval_expr (env : dyn_env) (e : expr) : value =
       let v1 () = eval_expr env e1 in
       let v2 () = eval_expr env e2 in
       (match op with
-       | Add ->
-           (match v1 (), v2 () with
-            | VInt n1, VInt n2 -> VInt (n1 + n2)
-            | _ -> assert false)
-       | Sub ->
-           (match v1 (), v2 () with
-            | VInt n1, VInt n2 -> VInt (n1 - n2)
-            | _ -> assert false)
-       | Mul ->
-           (match v1 (), v2 () with
-            | VInt n1, VInt n2 -> VInt (n1 * n2)
-            | _ -> assert false)
-       | Div ->
-           (match v1 (), v2 () with
-            | VInt _, VInt 0 -> raise DivByZero
-            | VInt n1, VInt n2 -> VInt (n1 / n2)
-            | _ -> assert false)
-       | Mod ->
-           (match v1 (), v2 () with
-            | VInt _, VInt 0 -> raise DivByZero
-            | VInt n1, VInt n2 -> VInt (n1 mod n2)
-            | _ -> assert false)
-       | AddF ->
-           (match v1 (), v2 () with
-            | VFloat x1, VFloat x2 -> VFloat (x1 +. x2)
-            | _ -> assert false)
-       | SubF ->
-           (match v1 (), v2 () with
-            | VFloat x1, VFloat x2 -> VFloat (x1 -. x2)
-            | _ -> assert false)
-       | MulF ->
-           (match v1 (), v2 () with
-            | VFloat x1, VFloat x2 -> VFloat (x1 *. x2)
-            | _ -> assert false)
-       | DivF ->
-           (match v1 (), v2 () with
-            | VFloat x1, VFloat x2 -> VFloat (x1 /. x2)
-            | _ -> assert false)      
-       | PowF ->
-           (match v1 (), v2 () with
-            | VFloat x1, VFloat x2 -> VFloat (x1 ** x2)
-            | _ -> assert false)
-       | And ->
-           (match v1 () with
-            | VBool false -> VBool false
-            | VBool true ->
-                (match v2 () with
-                 | VBool b -> VBool b
-                 | _ -> assert false)
-            | _ -> assert false)
-       | Or ->
-           (match v1 () with
-            | VBool true -> VBool true
-            | VBool false ->
-                (match v2 () with
-                 | VBool b -> VBool b
-                 | _ -> assert false)
-            | _ -> assert false)
-       | Lt ->
-           (match (v1 ()), (v2 ()) with
-            | VClos _, _ | _, VClos _ -> raise CompareFunVals
-            | _ -> VBool ((v1 ()) < (v2 ())))
-       | Lte ->
-           (match (v1 ()), (v2 ()) with
-            | VClos _, _ | _, VClos _ -> raise CompareFunVals
-            | _ -> VBool ((v1 ()) <= (v2 ())))
-       | Gt ->
-           (match (v1 ()), (v2 ()) with
-            | VClos _, _ | _, VClos _ -> raise CompareFunVals
-            | _ -> VBool ((v1 ()) > (v2 ())))
-       | Gte ->
-           (match (v1 ()), (v2 ()) with
-            | VClos _, _ | _, VClos _ -> raise CompareFunVals
-            | _ -> VBool ((v1 ()) >= (v2 ())))
-       | Eq ->
-           (match (v1 ()), (v2 ()) with
-            | VClos _, _ | _, VClos _ -> raise CompareFunVals
-            | _ -> VBool ((v1 ()) = (v2 ())))
-       | Neq ->
-           (match (v1 ()), (v2 ()) with
-            | VClos _, _ | _, VClos _ -> raise CompareFunVals
-            | _ -> VBool ((v1 ()) <> (v2 ())))
-       | Cons ->
-           (match (v1 ()), (v2 ()) with
-            | v, VList vs -> VList (v :: vs)
-            | _ -> assert false)
-       | Comma -> VPair ((v1 ()), (v2 ())))
+        | Add ->
+            (match v1 (), v2 () with
+              | VInt n1, VInt n2 -> VInt (n1 + n2)
+              | _ -> assert false)
+        | Sub ->
+            (match v1 (), v2 () with
+              | VInt n1, VInt n2 -> VInt (n1 - n2)
+              | _ -> assert false)
+        | Mul ->
+            (match v1 (), v2 () with
+              | VInt n1, VInt n2 -> VInt (n1 * n2)
+              | _ -> assert false)
+        | Div ->
+            (match v1 (), v2 () with
+              | VInt _, VInt 0 -> raise DivByZero
+              | VInt n1, VInt n2 -> VInt (n1 / n2)
+              | _ -> assert false)
+        | Mod ->
+            (match v1 (), v2 () with
+              | VInt _, VInt 0 -> raise DivByZero
+              | VInt n1, VInt n2 -> VInt (n1 mod n2)
+              | _ -> assert false)
+        | AddF ->
+            (match v1 (), v2 () with
+              | VFloat x1, VFloat x2 -> VFloat (x1 +. x2)
+              | _ -> assert false)
+        | SubF ->
+            (match v1 (), v2 () with
+              | VFloat x1, VFloat x2 -> VFloat (x1 -. x2)
+              | _ -> assert false)
+        | MulF ->
+            (match v1 (), v2 () with
+              | VFloat x1, VFloat x2 -> VFloat (x1 *. x2)
+              | _ -> assert false)
+        | DivF ->
+            (match v1 (), v2 () with
+              | VFloat x1, VFloat x2 -> VFloat (x1 /. x2)
+              | _ -> assert false)      
+        | PowF ->
+            (match v1 (), v2 () with
+              | VFloat x1, VFloat x2 -> VFloat (x1 ** x2)
+              | _ -> assert false)
+        | And ->
+            (match v1 () with
+              | VBool false -> VBool false
+              | VBool true ->
+                  (match v2 () with
+                  | VBool b -> VBool b
+                  | _ -> assert false)
+              | _ -> assert false)
+        | Or ->
+            (match v1 () with
+              | VBool true -> VBool true
+              | VBool false ->
+                  (match v2 () with
+                  | VBool b -> VBool b
+                  | _ -> assert false)
+              | _ -> assert false)
+        | Lt ->
+            if has_fun (v1 ()) || has_fun (v2 ()) then raise CompareFunVals
+            else VBool ((v1 ()) < (v2 ()))
+        | Lte ->
+            if has_fun (v1 ()) || has_fun (v2 ()) then raise CompareFunVals
+            else VBool ((v1 ()) <= (v2 ()))
+        | Gt ->
+            if has_fun (v1 ()) || has_fun (v2 ()) then raise CompareFunVals
+            else VBool ((v1 ()) > (v2 ()))
+        | Gte ->
+            if has_fun (v1 ()) || has_fun (v2 ()) then raise CompareFunVals
+            else VBool ((v1 ()) >= (v2 ()))
+        | Eq ->
+            if has_fun (v1 ()) || has_fun (v2 ()) then raise CompareFunVals
+            else VBool ((v1 ()) = (v2 ()))
+        | Neq ->
+            if has_fun (v1 ()) || has_fun (v2 ()) then raise CompareFunVals
+            else VBool ((v1 ()) <> (v2 ()))
+        | Cons ->
+            (match (v1 ()), (v2 ()) with
+              | v, VList vs -> VList (v :: vs)
+              | _ -> assert false)
+        | Comma -> VPair ((v1 ()), (v2 ())))
 
 let eval p =
   let rec nest = function
