@@ -203,8 +203,7 @@ let type_of (ctxt : stc_env) (e : expr) : ty_scheme option =
                | Add | Sub | Mul | Div | Mod -> TInt, [ (t1, TInt); (t2, TInt) ]
                | AddF | SubF | MulF | DivF | PowF -> TFloat, [ (t1, TFloat); (t2, TFloat) ]
                | And | Or -> TBool, [ (t1, TBool); (t2, TBool) ]
-               | Lt | Lte | Gt | Gte -> TBool, [ (t1, TFloat); (t2, TFloat) ]
-               | Eq | Neq -> TBool, [ (t1, t2) ]
+               | Lt | Lte | Gt | Gte | Eq | Neq -> TBool, [ (t1, t2) ]
                | Cons ->
                    let a = fresh () in
                    TList a, [ (t1, a); (t2, TList a) ]
