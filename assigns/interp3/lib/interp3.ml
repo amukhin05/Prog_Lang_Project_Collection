@@ -334,18 +334,22 @@ let rec eval_expr (env : dyn_env) (e : expr) : value =
               | VFloat x1, VFloat x2 -> VFloat (x1 ** x2)
               | _ -> assert false)
         | And ->
-            (match v1 () with
+            let v1_t = eval_expr env e1 in
+            (match v1_t with
               | VBool false -> VBool false
               | VBool true ->
-                  (match v2 () with
+                  let v2_t = eval_expr env e2 in
+                  (match v2_t with
                   | VBool b -> VBool b
                   | _ -> assert false)
               | _ -> assert false)
         | Or ->
-            (match v1 () with
+            let v1_t = eval_expr env e1 in
+            (match v1_t with
               | VBool true -> VBool true
               | VBool false ->
-                  (match v2 () with
+                  let v2_t = eval_expr env e2 in
+                  (match v2_t with
                   | VBool b -> VBool b
                   | _ -> assert false)
               | _ -> assert false)
