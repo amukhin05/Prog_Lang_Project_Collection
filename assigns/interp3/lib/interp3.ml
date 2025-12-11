@@ -79,7 +79,7 @@ let type_of (ctxt : stc_env) (e : expr) : ty_scheme option =
     | TVar a ->
         (match lookup a s with
          | None -> ty
-         | Some t' -> apply s t')
+         | Some t -> apply s t)
     | TList t1 -> TList (apply s t1)
     | TOption t1 -> TOption (apply s t1)
     | TPair (t1, t2) -> TPair (apply s t1, apply s t2)
@@ -188,13 +188,13 @@ let type_of (ctxt : stc_env) (e : expr) : ty_scheme option =
         (match infer gamma1 binding with
          | None -> None
          | Some (t1, c1) ->
-             (match principle_type a ((t1, a) :: c1) with
-              | None -> None
-              | Some sigma_f ->
-                  let gamma2 = Env.add name sigma_f gamma in
-                  (match infer gamma2 body with
-                   | None -> None
-                   | Some (t2, c2) -> Some (t2, ((t1, a) :: c1) @ c2))))
+             match principle_type t1 c1 with
+             | None -> None
+             | Some sigma_f ->
+                 let gamma2 = Env.add name sigma_f gamma in
+                 (match infer gamma2 body with
+                  | None -> None
+                  | Some (t2, c2) -> Some (t2, c1 @ c2)))
     | Bop (op, e1, e2) ->
         (match infer gamma e1, infer gamma e2 with
          | Some (t1, c1), Some (t2, c2) ->
