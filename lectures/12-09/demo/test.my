@@ -1,3 +1,0 @@
-let k = fun x -> fun y -> x in
-let a = k 2 in
-a 3
